@@ -161,6 +161,11 @@ app.get('/findAMatch/:userId', async (req, res) =>{
         }
     }
 
+    if(outputMatch == null || outputMatch = {})
+    {
+        error: "userNumberIssue";
+    }
+    
     res.json({
         match: outputMatch,
         error: outputError,
