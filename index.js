@@ -125,32 +125,16 @@ app.get('/findAMatch/:userId', async (req, res) =>{
     if(outputMatch != null)
     {
         //If the match is a dummy. then return a custom item
-    if(outputMatch.username == "Dummy")
-    {
-        outputMatch = {
-                username: "Test Case",
-                hostelNumber: 1,
-                roomNumber: "999",
-                bio: "Sorry buddy this one is for testing. It may also mean that enough people hasnt registered yet on this website. So spread the word and try again after some time. Happy Valentines",
-                instaId: "@champagnepapi"
-            }
-
-            //Set time to 0
-            await UserDb.updateOne({
-                _id: userId
-            }, {
-                lastRequest: 0
-            })
-        }
-        else{
-            let currentTime = (new Date()).getTime()
-            //Update time
-            await UserDb.updateOne({
-                _id: userId
-            }, {
-                lastRequest: currentTime
-            })
-        }
+        let currentTime = (new Date()).getTime()
+        //Update time
+        await UserDb.updateOne({
+            _id: userId
+        }, {
+            lastRequest: currentTime
+        })
+    }
+    else{
+        outputError= "userNumberIssue"
     }
 
     res.json({
