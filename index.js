@@ -15,6 +15,12 @@ const boysHostel = [15, 4, 7, 8];
 const girlsHostel = [1, 5, 6, 9];
 const timeBetweenRequestsInMs = 10800000; //3 Hours
 
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://amintine.vercel.app'); // Replace with your allowed origin(s)
+  next();
+});
+
+
 app.post('/signUp', async (req, res) =>{
     //Expected body is a username, hostel, roomNumber, Bio, instaId(password)
     //Register this data in a database
