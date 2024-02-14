@@ -17,9 +17,11 @@ const timeBetweenRequestsInMs = 10800000; //3 Hours
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://amintine.vercel.app'); // Replace with your allowed origin(s)
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS'); // Include all methods used by your frontend
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Add headers sent by your frontend
+  res.setHeader('Access-Control-Allow-Credentials', 'true'); // Allow sending cookies (if applicable)
   next();
 });
-
 
 app.post('/signUp', async (req, res) =>{
     //Expected body is a username, hostel, roomNumber, Bio, instaId(password)
