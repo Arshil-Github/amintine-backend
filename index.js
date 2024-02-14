@@ -6,9 +6,9 @@ const cors = require("cors")
 const app = express()
 app.use(bodyParser.json())
 app.use(cors({
-    origin: ["https://amintine.vercel.app/"],
-    methods: ["POST", "GET"],
-    credentials: true,
+    origin: ['https://amintine.vercel.app'], // Replace with your allowed origin(s)
+    methods: ['POST', 'GET'], // Adjust methods used by your frontend
+    credentials: true 
 }))
 
 const boysHostel = [15, 4, 7, 8];
