@@ -6,7 +6,7 @@ const cors = require("cors")
 const app = express()
 app.use(bodyParser.json())
 app.use(cors({
-    origin: ['https://amintine.vercel.app'], // Replace with your allowed origin(s)
+    origin: ['https://amintine.vercel.app', 'http://localhost:5173'], // Replace with your allowed origin(s)
     methods: ['POST', 'GET'], // Adjust methods used by your frontend
     credentials: true 
 }))
