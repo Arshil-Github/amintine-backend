@@ -141,11 +141,11 @@ app.get('/findAMatch/:userId', async (req, res) =>{
             lastRequest: currentTime
         })
     }
-    else{
+    else if (outputError != null){
         outputError= "userNumberIssue"
     }
 
-    if(outputMatch == null || outputMatch == {})
+    if((outputMatch == null || outputMatch == {}) && outputError != null)
     {
         outputError = "userNumberIssue";
     }
