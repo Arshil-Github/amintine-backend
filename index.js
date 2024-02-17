@@ -25,7 +25,7 @@ app.use((req, res, next) => {
 
 app.use(async (req, res, next)=>{
     let blockedIp = await blockedIPDb.exists({
-        ipAddress: req.ip
+        ipAddress: req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     })
 
     if(blockedIp == null)
@@ -51,9 +51,9 @@ app.post('/signUp', async (req, res) =>{
         username: req.body.username,
         roomNumber: req.body.roomNumber,
         instaId: req.body.instaId,
-        ip: req.ip
+        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     })
-    console.log(req.ip)
+    console.log(req.headers['x-forwarded-for'] || req.socket.remoteAddress )
 
     //This object must follow the UserDb Schema
     let userData = {
@@ -62,7 +62,7 @@ app.post('/signUp', async (req, res) =>{
         roomNumber: req.body.roomNumber,
         bio: req.body.bio,
         instaId: req.body.instaId,
-        ip: req.ip
+        ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     }
 
     if(userExistsId != false)
