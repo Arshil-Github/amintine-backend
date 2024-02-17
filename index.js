@@ -31,7 +31,8 @@ app.post('/signUp', async (req, res) =>{
 
     const userExistsId = await DoesUserExists({
         username: req.body.username,
-        roomNumber: req.body.roomNumber
+        roomNumber: req.body.roomNumber,
+        instaId: req.body.instaId
     })
 
     //This object must follow the UserDb Schema
@@ -145,7 +146,7 @@ app.get('/findAMatch/:userId', async (req, res) =>{
         outputError= "userNumberIssue"
     }
 
-    if((outputMatch == null || outputMatch == {}) && outputError != null)
+    if((outputMatch == null || outputMatch == {}) && outputError == null)
     {
         outputError = "userNumberIssue";
     }
@@ -164,10 +165,11 @@ async function DoesUserExists(data)
         //data include name, hostel room
         const username = data.username
         const roomNumber = parseInt(data.roomNumber)
+        const instaId = data.instaId
     
         let existingId = await UserDb.exists({
             username: { $regex: new RegExp(username, 'i') },
-            roomNumber: roomNumber
+            instaId: { $regex: new RegExp(instaId, 'i') }
         })
     
         if(existingId == null)
