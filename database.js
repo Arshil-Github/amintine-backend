@@ -10,7 +10,12 @@ let UserSchema = new mongoose.Schema({
     roomNumber: Number,
     bio: String,
     instaId: String,
-    lastRequest: Number
+    lastRequest: Number,
+    matches: [{
+        matchName: String,
+        matchHostel: Number
+    }],
+    ip: String
 })
 
 let UserDb = mongoose.model("User", UserSchema)
@@ -23,4 +28,17 @@ let fixedUserSchema = new mongoose.Schema({
 })
 let fixedUserDb = mongoose.model("FixedUser", fixedUserSchema)
 
-module.exports = {UserDb}
+
+let feedbackSchema = new mongoose.Schema({
+    message: String,
+    user: String
+})
+let feedbackDb = mongoose.model("Feedback", feedbackSchema)
+
+let blockedIPSchema = new mongoose.Schema({
+    ipAddress: String
+})
+
+let blockedIPDb = mongoose.model("BlockedIP", blockedIPSchema)
+
+module.exports = {UserDb, feedbackDb, blockedIPDb}

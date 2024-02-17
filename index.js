@@ -1,5 +1,5 @@
 const express = require("express")
-const {UserDb} = require("./database")
+const {UserDb, feedbackDb , blockedIPDb} = require("./database")
 const bodyParser = require("body-parser")
 const cors = require("cors")
 
@@ -23,6 +23,24 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(async (req, res, next)=>{
+    let blockedIp = await blockedIPDb.exists({
+        ipAddress: req.ip
+    })
+
+    if(blockedIp == null)
+    {
+        next();
+    }
+    else{
+        res.json({
+            msg: "Saala tharki gand mara"
+        })
+    }
+
+    
+})
+
 app.post('/signUp', async (req, res) =>{
     //Expected body is a username, hostel, roomNumber, Bio, instaId(password)
     //Register this data in a database
@@ -32,8 +50,10 @@ app.post('/signUp', async (req, res) =>{
     const userExistsId = await DoesUserExists({
         username: req.body.username,
         roomNumber: req.body.roomNumber,
-        instaId: req.body.instaId
+        instaId: req.body.instaId,
+        ip: req.ip
     })
+    console.log(req.ip)
 
     //This object must follow the UserDb Schema
     let userData = {
@@ -41,7 +61,8 @@ app.post('/signUp', async (req, res) =>{
         hostelNumber: req.body.hostelNumber,
         roomNumber: req.body.roomNumber,
         bio: req.body.bio,
-        instaId: req.body.instaId
+        instaId: req.body.instaId,
+        ip: req.ip
     }
 
     if(userExistsId != false)
@@ -52,6 +73,11 @@ app.post('/signUp', async (req, res) =>{
         }, userData)
 
         userData._id = userExistsId._id;
+
+        await UserDb.findById(userExistsId._id)
+        .then(result =>{
+            userData.matches = result.matches
+        })
 
         res.status(200).json({
             msg: "User Updated Successfully",
@@ -68,7 +94,8 @@ app.post('/signUp', async (req, res) =>{
             roomNumber: req.body.roomNumber,
             bio: req.body.bio,
             instaId: req.body.instaId,
-            _id: newUserId._id
+            _id: newUserId._id,
+            matches: []
         }
 
         res.status(200).json({
@@ -94,6 +121,7 @@ app.get('/findAMatch/:userId', async (req, res) =>{
     let outputError = null;
     let outputTime = 0;
 
+    console.log(req.ip)
 
     if( timeSinceLastReq > timeBetweenRequestsInMs)
     {
@@ -133,6 +161,15 @@ app.get('/findAMatch/:userId', async (req, res) =>{
     //If found a match, assign a timeout
     if(outputMatch != null)
     {
+        //Push this user to outputMatchs' matches
+        await UserDb.findByIdAndUpdate(outputMatch._id, 
+            { $push: { 
+                matches: {
+                    matchName: thisUser.username,
+                    matchHostel: thisUser.hostelNumber
+                } 
+            } })
+        
         //If the match is a dummy. then return a custom item
         let currentTime = (new Date()).getTime()
         //Update time
@@ -142,9 +179,11 @@ app.get('/findAMatch/:userId', async (req, res) =>{
             lastRequest: currentTime
         })
     }
-    else if (outputError != null){
+    else if (outputError == null){
+        console.log("outputError")
         outputError= "userNumberIssue"
     }
+
 
     if((outputMatch == null || outputMatch == {}) && outputError == null)
     {
@@ -159,6 +198,28 @@ app.get('/findAMatch/:userId', async (req, res) =>{
     
 })
 
+app.post('/feedBack/:userId', async (req, res) =>{
+    const userId = req.params.userId;
+    const feedbackMsg = req.body.feedback;
+
+    try{
+            let newUserId = await feedbackDb.create({
+            message: feedbackMsg,
+            user: userId
+        })
+
+        res.status(200).json({
+            msg: "Feedback sucessful"
+        });
+    }
+    catch(e)
+    {
+        res.status(200).json({
+            msg: "Feedback not successful"
+        });
+    }
+})
+
 async function DoesUserExists(data)
 {
     try{
@@ -166,10 +227,12 @@ async function DoesUserExists(data)
         const username = data.username
         const roomNumber = parseInt(data.roomNumber)
         const instaId = data.instaId
+        const userIp = data.ip
     
         let existingId = await UserDb.exists({
-            username: { $regex: new RegExp(username, 'i') },
-            instaId: { $regex: new RegExp(instaId, 'i') }
+            $or : [
+                {instaId: { $regex: new RegExp(instaId, 'i') }}, 
+                {ip: userIp}]
         })
     
         if(existingId == null)
